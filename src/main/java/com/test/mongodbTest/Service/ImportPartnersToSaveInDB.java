@@ -14,11 +14,11 @@ import java.util.Iterator;
 import java.util.List;
 
 @Service
-public class PDFUpdatePartner {
+public class ImportPartnersToSaveInDB {
     @Autowired
     PartnerContainerRepositoryCustom partnerContainerRepositoryCustom;
 
-    public List<PartnerResponse> updatePartnersFromUploadedCsv(MultipartFile file) throws IOException {
+    public List<PartnerResponse> importPartnersAndSaveInDB(MultipartFile file) throws IOException {
         List<PartnerResponse> updatedPartnerResponses = new ArrayList<>();
 
         // Create Workbook instance

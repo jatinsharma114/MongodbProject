@@ -9,9 +9,9 @@ import java.util.List;
 public interface PartnerContainerRepositoryCustom {
 
     Partner findPartnerById(int partnerId);
-    Partner conditionCreteria(String name, String details);
+    Partner conditionCreteria(String name);
 
-    ResponseEntity<List<Partner>> getPartnersByCondition(String name, String details);
+    ResponseEntity<List<Partner>> getPartnersByCondition(String name);
 
     ResponseEntity<List<Partner>> updatePartner(Integer name, Partner updatedPartner);
 

@@ -2,8 +2,7 @@ package com.test.mongodbTest.Controller;
 
 
 import com.test.mongodbTest.DTO.PartnerResponse;
-import com.test.mongodbTest.Service.PDFUpdatePartner;
-import com.test.mongodbTest.Repository.MongoDBRepo;
+import com.test.mongodbTest.Service.ImportPartnersToSaveInDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,18 +14,20 @@ import java.io.*;
 import java.util.List;
 
 @RestController
-public class PDFReaderController {
+public class ImportPartnersFromExcelSheetToDB {
     @Autowired
-    private PDFUpdatePartner pdfUpdatePartner;
+    private ImportPartnersToSaveInDB pdfUpdatePartner;
 
     @PostMapping("/uploadpdf")
     public ResponseEntity<List<PartnerResponse>> updatePartnersFromCsv(@RequestParam("file") MultipartFile file) {
         try {
-            List<PartnerResponse> responses = pdfUpdatePartner.updatePartnersFromUploadedCsv(file);
+            List<PartnerResponse> responses = pdfUpdatePartner.importPartnersAndSaveInDB(file);
             return ResponseEntity.ok(responses);
         } catch (IOException e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+
 
 }

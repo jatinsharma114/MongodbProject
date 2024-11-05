@@ -42,8 +42,8 @@ public class Controller {
 
 
     @GetMapping("/getByCondition1")
-    public ResponseEntity<Partner> conditionBased1(@RequestParam String name, @RequestParam String details) {
-        Partner partner = mongoQuery.conditionCreteria(name, details);
+    public ResponseEntity<Partner> conditionBased1(@RequestParam String name) {
+        Partner partner = mongoQuery.conditionCreteria(name);
 
         if (partner != null) {
             return ResponseEntity.ok(partner);
@@ -53,8 +53,8 @@ public class Controller {
 
 
     @GetMapping("/getByCondition2")
-    public ResponseEntity<ResponseEntity<List<Partner>>> conditionBased2(@RequestParam String name, @RequestParam String details) {
-        ResponseEntity<List<Partner>> partner = mongoQuery.getPartnersByCondition(name, details);
+    public ResponseEntity<ResponseEntity<List<Partner>>> conditionBased2(@RequestParam String name) {
+        ResponseEntity<List<Partner>> partner = mongoQuery.getPartnersByCondition(name);
 
         if (partner != null) {
             return ResponseEntity.ok(partner);

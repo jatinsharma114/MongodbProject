@@ -18,7 +18,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Repository
@@ -53,11 +52,10 @@ public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRep
      * @return
      */
     @Override
-    public Partner conditionCreteria(String name, String details) {
+    public Partner conditionCreteria(String name) {
         // Create criteria based on parameters
         Criteria criteria = new Criteria().andOperator(
-                Criteria.where("partners.name").is(name),
-                Criteria.where("partners.details").is(details)
+                Criteria.where("partners.name").is(name)
         );
 
         Query queryCreated = new Query(criteria);
@@ -65,23 +63,22 @@ public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRep
 
             if (container != null) {
                 return container.getPartners().stream()
-                        .filter(partner -> partner.getName().equals(name)) // Use equals for string comparison
+                        .filter(partner -> partner.getName().equals(name))
                         .findFirst()
                         .orElse(null);
         }
         return null;
     }
 
-    public ResponseEntity<List<Partner>> getPartnersByCondition(@RequestParam String name, @RequestParam String details) {
-        // Step 1: Define your criteria
-        Criteria criteria = Criteria.where("partners.name").is(name)
-                .and("partners.details").is(details);
+    @Override
+    public ResponseEntity<List<Partner>> getPartnersByCondition(@RequestParam String name) {
+        // Step 1: Define your criteria Defined the age should be greater than something like this here!
+        Criteria criteria = Criteria.where("partners.name").is(name);
 
         // Step 2: Create the MatchOperation
         MatchOperation matchOperation = Aggregation.match(criteria);
 
-        LimitOperation limit = Aggregation.limit(1);
-
+        LimitOperation limit = Aggregation.limit(2);
 
         // Step 3: Build your aggregation pipeline
         Aggregation aggregation = Aggregation.newAggregation(matchOperation, limit);

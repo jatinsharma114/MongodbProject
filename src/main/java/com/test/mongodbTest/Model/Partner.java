@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Partner {
 
     @Id
@@ -26,7 +27,7 @@ public class Partner {
 
 
 /**
- * JsonProperty(value = "student_id ")
+ * @JsonProperty(value = "student_id ")
  * String id
  *
  * ---> Payload -> FE(student_id) Payload
@@ -40,10 +41,12 @@ public class Partner {
  *
  * ===================
  * ===================
- * ** JsonIgnore & jsonIgnoreProperties
+ * @JsonIgnore
+ * @jsonIgnoreProperties
  *
  * Deserialize and serlizliation
- * No Data can come ot go in Reponse
+ *
+ * No Data can come to go in Reponse
  * Payload : coming as NULL !
  * Response - No field present!
  *

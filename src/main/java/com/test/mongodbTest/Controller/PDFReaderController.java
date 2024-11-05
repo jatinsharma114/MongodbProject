@@ -16,12 +16,8 @@ import java.util.List;
 
 @RestController
 public class PDFReaderController {
-
     @Autowired
     private PDFUpdatePartner pdfUpdatePartner;
-
-    @Autowired
-    private MongoDBRepo mongoDBRepo;
 
     @PostMapping("/uploadpdf")
     public ResponseEntity<List<PartnerResponse>> updatePartnersFromCsv(@RequestParam("file") MultipartFile file) {

@@ -19,3 +19,14 @@ public class PartnerContainer {
     private String createdOn;
 
 }
+/**
+ * @JsonIgnoreProperties(ignoreUnknown = true)
+ * Even if some field are not present while sending in the PAYLOAD It will ignore while Deserrialization in JAVA class
+ *
+ * - So If only location field is not present in the class it will be ignore!
+ * - Thanks to this!!
+ *
+ * IF not then If @JsonIgnoreProperties(ignoreUnknown = true) is not used,
+ * Jackson will throw an UnrecognizedPropertyException.
+ *
+ */

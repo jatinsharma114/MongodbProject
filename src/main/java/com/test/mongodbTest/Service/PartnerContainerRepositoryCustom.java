@@ -8,15 +8,28 @@ import java.util.List;
 
 public interface PartnerContainerRepositoryCustom {
 
+    List<PartnerContainer> findAllPartnerContainers();
+
     Partner findPartnerById(int partnerId);
-    Partner conditionCreteria(String name);
 
-    ResponseEntity<List<Partner>> getPartnersByCondition(String name);
+    //Similar name of the partner.
+   List<Partner> getPartnersByName(String name);
 
-    ResponseEntity<List<Partner>> updatePartner(Integer name, Partner updatedPartner);
+   // Add New PartnerContainer with multi. Partners
+    public PartnerContainer addNewPartner(PartnerContainer partnerContainer);
 
-    ResponseEntity<List<Partner>> pipineResult();
+    /**
+     * Update the Partner field based on the partnerId
+     * @param partnerId
+     * @param updatedPartner
+     * @return
+     */
+    ResponseEntity<List<Partner>> updatePartner(Integer partnerId, Partner updatedPartner);
 
-    public PartnerContainer setCreationDatePartnerContainer(PartnerContainer partnerContainer);
+
+    //----------------------By AGE ----------------------------
+    public List<Partner> getPartnersAboveAge(int age);
+
+    List<Partner> creteriaBasedOnAge(Integer age);
 
 }

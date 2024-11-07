@@ -1,6 +1,7 @@
 package com.test.mongodbTest.Service;
 
 import com.test.mongodbTest.Model.Partner;
+import com.test.mongodbTest.Repository.MongoDBRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,12 @@ public class ExportPartnersToSaveOnLocalDisk {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<Partner> getAllPartners() {
-        // Query the PartnerContainer collection and fetch all partner records
-        //Here we can filter based on the --> Criteria can insert like greater than age >30  etc.
-        Query query = new Query();
+    @Autowired
+    private MongoDBRepo mongoDBRepo;
 
-        // Fetch all PartnerContainer documents
-        List<PartnerContainer> containers = mongoTemplate.find(query, PartnerContainer.class);
+    public List<Partner> getAllPartners() {
+
+        List<PartnerContainer> containers = mongoDBRepo.findAll();
 
         // Collect partners from all containers
         return containers.stream()

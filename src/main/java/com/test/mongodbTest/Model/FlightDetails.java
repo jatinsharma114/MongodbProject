@@ -23,6 +23,4 @@ public class FlightDetails {
     private Date departureTime; // Departure date and time
     private Date arrivalTime; // Arrival date and time
     private String gateNumber; // Gate number for boarding
-
-
 }

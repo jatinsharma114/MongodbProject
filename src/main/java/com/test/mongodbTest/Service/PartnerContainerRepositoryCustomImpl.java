@@ -6,6 +6,7 @@ import com.test.mongodbTest.Model.Partner;
 import com.test.mongodbTest.Model.PartnerContainer;
 import com.test.mongodbTest.Repository.MongoDBRepo;
 import com.test.mongodbTest.Utils.GlobalConstant;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -14,18 +15,21 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
+@Service
 public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRepositoryCustom {
 
+    @Autowired
     private MongoDBRepo mongoDBRepo;
 
+
     private final MongoTemplate mongoTemplate;
+
 
     public PartnerContainerRepositoryCustomImpl(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -168,7 +172,15 @@ public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRep
         return filteredPartners;
     }
 
+//    public List<PartnerContainer> getPartnerContainersWithAgeAbove40() {
+//        return mongoDBRepo.findPartnerContainersByAgeGreaterThan40();
+//    }
 
+//    @Autowired
+//    PartnerRepo partnerRepo;
 
+    public List<Partner> getPartnerContainersWithAgeAbove40() {
+        return mongoDBRepo.findPartnerContainersByAgeGreaterThan40();
+    }
 
 }

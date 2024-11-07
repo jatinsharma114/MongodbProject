@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @GetMapping("/getByID/{id}")
-    public ResponseEntity<Partner> getPartnerById(@PathVariable("id") int id) {
+    public ResponseEntity<Partner> getPartnerById(@PathVariable(value = "id") int id) {
 
         Partner partner = userService.findPartnerById(id);// external Query Used
 
@@ -75,4 +75,16 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+
+    //------------------------
+//    @GetMapping("/ageAbove40")
+//    public ResponseEntity<List<Partner>> getPartnerContainersWithAgeAbove40() {
+//        List<Partner> partner = userService.getPartnerContainersWithAgeAbove40();
+//
+//        if (partner.isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        return ResponseEntity.ok(partner);
+//    }
 }

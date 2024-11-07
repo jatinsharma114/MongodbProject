@@ -5,6 +5,7 @@ import com.test.mongodbTest.Model.PartnerContainer;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PartnerContainerRepositoryCustom {
 
@@ -31,5 +32,9 @@ public interface PartnerContainerRepositoryCustom {
     public List<Partner> getPartnersAboveAge(int age);
 
     List<Partner> creteriaBasedOnAge(Integer age);
+
+
+    //-------------------
+    public List<Partner> getPartnerContainersWithAgeAbove40();
 
 }

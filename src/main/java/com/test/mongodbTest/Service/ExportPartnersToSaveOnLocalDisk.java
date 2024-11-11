@@ -1,7 +1,7 @@
 package com.test.mongodbTest.Service;
 
 import com.test.mongodbTest.Model.Partner;
-import com.test.mongodbTest.Repository.MongoDBRepo;
+import com.test.mongodbTest.Repository.PartnerContainerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -10,11 +10,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.mongodb.core.query.Query;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,11 +22,11 @@ public class ExportPartnersToSaveOnLocalDisk {
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    private MongoDBRepo mongoDBRepo;
+    private PartnerContainerRepo partnerContainerRepo;
 
     public List<Partner> getAllPartners() {
 
-        List<PartnerContainer> containers = mongoDBRepo.findAll();
+        List<PartnerContainer> containers = partnerContainerRepo.findAll();
 
         // Collect partners from all containers
         return containers.stream()

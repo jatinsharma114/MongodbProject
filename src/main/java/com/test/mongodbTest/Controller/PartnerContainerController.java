@@ -12,23 +12,23 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
-public class UserController {
+public class PartnerContainerController {
 
     @Autowired
-    private PartnerContainerRepositoryCustom userService;
+    private PartnerContainerRepositoryCustom partnerContainerRepositoryCustom;
 
-    public UserController() {
+    public PartnerContainerController() {
     }
 
     @GetMapping("/getAll")
     public List<PartnerContainer> getAllPosts() {
-        return userService.findAllPartnerContainers();
+        return partnerContainerRepositoryCustom.findAllPartnerContainers();
     }
 
     @GetMapping("/getByID/{id}")
     public ResponseEntity<Partner> getPartnerById(@PathVariable(value = "id") int id) {
 
-        Partner partner = userService.findPartnerById(id);// external Query Used
+        Partner partner = partnerContainerRepositoryCustom.findPartnerById(id);// external Query Used
 
         if (partner != null) {
             return ResponseEntity.ok(partner);
@@ -38,14 +38,14 @@ public class UserController {
 
     @GetMapping("/partners/name")
     public List<Partner> getPartnersByName(@RequestParam String name) {
-        return userService.getPartnersByName(name);
+        return partnerContainerRepositoryCustom.getPartnersByName(name);
     }
 
 
     @PostMapping("/updatePartner/{id}")
     public ResponseEntity<ResponseEntity<List<Partner>>> updatePartner(@PathVariable int id, @RequestBody Partner updatedPartner) {
 
-        ResponseEntity<List<Partner>> partner = userService.updatePartner(id, updatedPartner);
+        ResponseEntity<List<Partner>> partner = partnerContainerRepositoryCustom.updatePartner(id, updatedPartner);
 
         if (partner != null) {
             return ResponseEntity.ok(partner);
@@ -55,20 +55,20 @@ public class UserController {
 
     @PostMapping("/addnew")
     public ResponseEntity<PartnerContainer> addPartnerContainer(@RequestBody PartnerContainer partnerContainer) {
-        PartnerContainer savedContainer = userService.addNewPartner(partnerContainer);
+        PartnerContainer savedContainer = partnerContainerRepositoryCustom.addNewPartner(partnerContainer);
         return ResponseEntity.ok(savedContainer);
     }
 
     // Aggregation pipeline ::
     @GetMapping("/partners/age")
     public List<Partner> getPartnersAboveAge(@RequestParam int age) {
-        return userService.getPartnersAboveAge(age);
+        return partnerContainerRepositoryCustom.getPartnersAboveAge(age);
     }
 
     // Criteria based: Using the Loop to fetch @Partner from @PartnerContainer
     @GetMapping("/partners/getByAge")
     public ResponseEntity<List<Partner>> creteriaBasedOnAge(@RequestParam Integer age) {
-        List<Partner> partners = userService.creteriaBasedOnAge(age);
+        List<Partner> partners = partnerContainerRepositoryCustom.creteriaBasedOnAge(age);
         if (!partners.isEmpty()) {
             return ResponseEntity.ok(partners);
         }

@@ -1,0 +1,583 @@
+package com.ai.redsmartplus.irrops.service.impl;
+
+import com.ai.redsmartplus.dao.ArcFlightPlanDAO;
+import com.ai.redsmartplus.irrops.model.GetIRROPSResponse;
+import com.ai.redsmartplus.irrops.model.IrropsDownloadReq;
+import com.ai.redsmartplus.irrops.repository.FlightPlanRepo;
+import com.ai.redsmartplus.model.ArcFlightPlan;
+import com.ai.redsmartplus.model.FlightPlan;
+import com.ai.redsmartplus.util.DateUtil;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+
+import org.springframework.core.io.Resource;
+
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ContextConfiguration(classes = {PdfExcelGeneratorServiceImpl.class})
+@RunWith(SpringJUnit4ClassRunner.class)
+public class PdfExcelGeneratorServiceImplTest {
+
+    @Autowired
+    PdfExcelGeneratorServiceImpl pdfExcelGeneratorService;
+
+    @MockBean
+    GetIRROPSDetailsServiceImpl getIRROPSDetailsService;
+
+    @MockBean
+    FlightPlanRepo flightPlansRepo;
+
+    @MockBean
+    ArcFlightPlanDAO arcFlightPlanDAO;
+
+    @MockBean
+    ResourceLoader resourceLoader;
+
+    private IrropsDownloadReq request;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this); // Initialize mocks
+
+        // Initialize request with valid data
+        request = new IrropsDownloadReq();
+        request.setFromLocalDateTime(LocalDateTime.of(2024, 11, 1, 0, 0));
+        request.setToLocalDateTime(LocalDateTime.of(2024, 11, 2, 0, 0));
+        request.setTimeZone("UTC");
+        request.setDownloadType("PDF");
+        request.setUserEmail("test@example.com");
+
+        // Mocking resources returned by resourceLoader
+        Resource mockImageResource = mock(Resource.class);
+        Resource mockIconResource = mock(Resource.class);
+
+        when(resourceLoader.getResource("classpath:data/image/image.png")).thenReturn(mockImageResource);
+        when(resourceLoader.getResource("classpath:data/image/icon.png")).thenReturn(mockIconResource);
+
+        // mock the behavior of these resources
+        when(mockImageResource.exists()).thenReturn(true);
+        when(mockIconResource.exists()).thenReturn(true);
+
+        try {
+            when(mockImageResource.getURL()).thenReturn(new URL("http://example.com/image.png"));
+            when(mockIconResource.getURL()).thenReturn(new URL("http://example.com/icon.png"));
+        } catch (MalformedURLException e) {
+            fail("Failed to create mock URL: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testDownloadPdfExcelWithValidDataAndPDFDownloadType() {
+        // Act
+        byte[] result = pdfExcelGeneratorService.downloadPdfExcel(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.length > 0); // Assuming some content is generated
+    }
+
+    @Test
+    public void testDownloadExcelWithValidDataFlow1() {
+        // Arrange
+        IrropsDownloadReq request = new IrropsDownloadReq();
+        request.setFromLocalDateTime(LocalDateTime.of(2024, 11, 1, 0, 0));
+        request.setToLocalDateTime(LocalDateTime.of(2024, 11, 2, 0, 0));
+        request.setTimeZone("UTC");
+        request.setDownloadType("EXCEL");
+        request.setUserEmail("test@example.com");
+
+        FlightPlan flightPlan = new FlightPlan();
+        flightPlan.setFlightDateStd(new Date());
+        flightPlan.setFlightEtd("10:30");
+        flightPlan.setFlightDesc("TestFlight");
+        flightPlan.setFlightReg("ABC123");
+        flightPlan.setFlightDep("JFK");
+        flightPlan.setFlightArr("LAX");
+        flightPlan.setFlightStatus("Scheduled");
+        flightPlan.setLotNo("123");
+        flightPlan.setFlightBucket("A");
+
+        when(flightPlansRepo.findByFlightDateStdBetween(any(), any())).thenReturn(Collections.singletonList(flightPlan));
+
+        // Act
+        byte[] result = pdfExcelGeneratorService.downloadPdfExcel(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.length > 0); // Assuming the Excel byte array is not empty
+    }
+
+    @Test
+    public void testDownloadExcelWithValidDataFlow2() {
+        // Arrange
+        IrropsDownloadReq request = new IrropsDownloadReq();
+        request.setFromLocalDateTime(LocalDateTime.of(2024, 11, 1, 0, 0));
+        request.setToLocalDateTime(LocalDateTime.of(2024, 11, 2, 0, 0));
+        request.setTimeZone("NOTUTC");
+        request.setDownloadType("EXCEL");
+        request.setUserEmail("test@example.com");
+
+        FlightPlan flightPlan = new FlightPlan();
+        flightPlan.setFlightDateStd(new Date());
+        flightPlan.setFlightEtd("10:30");
+        flightPlan.setFlightDesc("TestFlight");
+        flightPlan.setFlightReg("ABC123");
+        flightPlan.setFlightDep("JFK");
+        flightPlan.setFlightArr("LAX");
+        flightPlan.setFlightStatus("Scheduled");
+        flightPlan.setLotNo("123");
+        flightPlan.setFlightBucket("A");
+
+        when(flightPlansRepo.findByFlightDateStdLclBetween(any(), any())).thenReturn(Collections.singletonList(flightPlan));
+
+        // Act
+        byte[] result = pdfExcelGeneratorService.downloadPdfExcel(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.length > 0); // Assuming the Excel byte array is not empty
+    }
+
+    @Test
+    public void testFlightPlanProcess_WhenArcFlightPlanIsPresentAndDelayed() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        // Mock the return value of the DAO
+        ArcFlightPlan arcFlightPlan = mock(ArcFlightPlan.class);
+
+        when(arcFlightPlan.getChangedAttr()).thenReturn(Arrays.asList("flightEtd"));
+        when(arcFlightPlan.getFlightEtd()).thenReturn("10:00");
+        when(arcFlightPlan.getUpdTime()).thenReturn(LocalDateTime.of(2024, 11, 13, 9, 30)); // Updated time
+
+        List<ArcFlightPlan> flightPlans = Collections.singletonList(arcFlightPlan);
+
+        when(arcFlightPlanDAO.findByFlightDateDescDepArr(anyString())).thenReturn(flightPlans);
+
+        // Flight plan that we are testing
+        FlightPlan flightPlan = mock(FlightPlan.class);
+        when(flightPlan.getFlightDateDescDepArr()).thenReturn("12345");
+        when(flightPlan.getFlightDateStd()).thenReturn(getTheStaticDate()); // Standard time
+        when(flightPlan.getFlightEtd()).thenReturn("12:00");
+        when(flightPlan.getFlightDesc()).thenReturn("FL123");
+        when(flightPlan.getFlightReg()).thenReturn("ABC123");
+        when(flightPlan.getFlightDep()).thenReturn("JFK");
+        when(flightPlan.getFlightArr()).thenReturn("LAX");
+        when(flightPlan.getFlightStatus()).thenReturn("Scheduled");
+        when(flightPlan.getLotNo()).thenReturn("Lot001");
+        when(flightPlan.getFlightBucket()).thenReturn("Bucket001");
+
+        // Use reflection to access the private method
+        Method method = PdfExcelGeneratorServiceImpl.class.getDeclaredMethod("flightPlanProcess", FlightPlan.class, String.class);
+        method.setAccessible(true);
+
+        // Act
+        GetIRROPSResponse response = (GetIRROPSResponse) method.invoke(pdfExcelGeneratorService, flightPlan, "UTC");
+
+        // Validate the response
+        assertNotNull(response);
+        assertEquals("Delayed", response.getStatus());
+        assertEquals("12:00", response.getFlightTime());
+        assertEquals("FL123", response.getFlightNo());
+        assertEquals("13/11/2024", response.getFlightDate());
+        assertEquals("ABC123", response.getTailNo());
+        assertEquals("JFK", response.getFlightDep());
+        assertEquals("LAX", response.getFlightArr());
+    }
+
+    @Test
+    public void testFlightPlanProcess_WhenArcFlightPlanIsPresentAndDelayed2() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        // Mock the return value of the DAO
+        ArcFlightPlan arcFlightPlan = mock(ArcFlightPlan.class);
+
+        when(arcFlightPlan.getChangedAttr()).thenReturn(Arrays.asList("flightReg"));
+        when(arcFlightPlan.getFlightEtd()).thenReturn("10:00");
+        when(arcFlightPlan.getUpdTime()).thenReturn(LocalDateTime.of(2024, 11, 13, 9, 30)); // Updated time
+
+        List<ArcFlightPlan> flightPlans = Collections.singletonList(arcFlightPlan);
+
+        when(arcFlightPlanDAO.findByFlightDateDescDepArr(anyString())).thenReturn(flightPlans);
+
+        // Flight plan that we are testing
+        FlightPlan flightPlan = mock(FlightPlan.class);
+        LocalDateTime localDateTime = LocalDateTime.now(ZoneId.of("UTC"));
+        when(flightPlan.getFlightDateStdLcl()).thenReturn(localDateTime);
+        when(flightPlan.getFlightDateDescDepArr()).thenReturn("12345");
+
+        when(flightPlan.getFlightDateStd()).thenReturn(getTheStaticDate()); // Standard time
+        when(flightPlan.getFlightEtd()).thenReturn("12:00");
+        when(flightPlan.getFlightDesc()).thenReturn("FL123");
+        when(flightPlan.getFlightReg()).thenReturn("ABC123");
+        when(flightPlan.getFlightDep()).thenReturn("JFK");
+        when(flightPlan.getFlightArr()).thenReturn("LAX");
+        when(flightPlan.getFlightStatus()).thenReturn("Scheduled");
+        when(flightPlan.getLotNo()).thenReturn("Lot001");
+        when(flightPlan.getFlightBucket()).thenReturn("Bucket001");
+
+        // Use reflection to access the private method
+        Method method = PdfExcelGeneratorServiceImpl.class.getDeclaredMethod("flightPlanProcess", FlightPlan.class, String.class);
+        method.setAccessible(true);
+
+        // Act
+        GetIRROPSResponse response = (GetIRROPSResponse) method.invoke(pdfExcelGeneratorService, flightPlan, "Local");
+
+        // Validate the response
+        assertNotNull(response);
+        assertEquals("Tail Change", response.getStatus());
+        assertEquals("FL123", response.getFlightNo());
+        assertEquals("ABC123", response.getTailNo());
+        assertEquals("JFK", response.getFlightDep());
+        assertEquals("LAX", response.getFlightArr());
+    }
+
+    @Test
+    public void testFlightPlanProcess_WhenFlightIsDelayedDueToFlightRegChange() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ParseException {
+        // Set up mock data for flight plan with tail change
+        ArcFlightPlan arcFlightPlan = mock(ArcFlightPlan.class);
+
+        when(arcFlightPlan.getChangedAttr()).thenReturn(Arrays.asList("flightReg"));
+        when(arcFlightPlan.getFlightReg()).thenReturn("DEF456");
+        when(arcFlightPlan.getUpdTime()).thenReturn(LocalDateTime.of(2024, 11, 13, 9, 30));
+
+        List<ArcFlightPlan> flightPlans = Collections.singletonList(arcFlightPlan);
+
+        when(arcFlightPlanDAO.findByFlightDateDescDepArr(anyString())).thenReturn(flightPlans);
+
+        // Flight plan being tested
+        FlightPlan flightPlan = mock(FlightPlan.class);
+        when(flightPlan.getFlightDateDescDepArr()).thenReturn("12345");
+        when(flightPlan.getFlightDateStd()).thenReturn(getTheStaticDate());
+        when(flightPlan.getFlightEtd()).thenReturn("12:00");
+        when(flightPlan.getFlightDesc()).thenReturn("FL123");
+        when(flightPlan.getFlightReg()).thenReturn("ABC123"); // Original tail number
+        when(flightPlan.getFlightDep()).thenReturn("JFK");
+        when(flightPlan.getFlightArr()).thenReturn("LAX");
+        when(flightPlan.getFlightStatus()).thenReturn("Scheduled");
+        when(flightPlan.getLotNo()).thenReturn("Lot001");
+        when(flightPlan.getFlightBucket()).thenReturn("Bucket001");
+
+        // Use reflection to access the private method
+        Method method = PdfExcelGeneratorServiceImpl.class.getDeclaredMethod("flightPlanProcess", FlightPlan.class, String.class);
+        method.setAccessible(true);
+
+        // Act
+        GetIRROPSResponse response = (GetIRROPSResponse) method.invoke(pdfExcelGeneratorService, flightPlan, "UTC");
+
+
+        // Validate the response
+        assertNotNull(response);
+        assertEquals("Tail Change", response.getStatus());  // Status should be Tail Change
+        assertEquals("12:00", response.getFlightTime());
+        assertEquals("FL123", response.getFlightNo());
+        assertEquals("13/11/2024", response.getFlightDate());
+        assertEquals("ABC123", response.getTailNo());  // Original tail number should still be shown
+        assertEquals("JFK", response.getFlightDep());
+        assertEquals("LAX", response.getFlightArr());
+    }
+
+    @Test
+    public void testFlightPlanProcess_WhenFlightIsDelayedDueToETDChange() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        // Set up mock data for arc flight plan with a changed ETD
+        ArcFlightPlan arcFlightPlan = mock(ArcFlightPlan.class);
+        when(arcFlightPlan.getChangedAttr()).thenReturn(Arrays.asList("flightEtdLcl"));
+        when(arcFlightPlan.getFlightEtdLcl()).thenReturn("10:00");
+        when(arcFlightPlan.getUpdTime()).thenReturn(LocalDateTime.of(2024, 11, 13, 9, 30));
+
+        List<ArcFlightPlan> flightPlans = Collections.singletonList(arcFlightPlan);
+        when(arcFlightPlanDAO.findByFlightDateDescDepArr(anyString())).thenReturn(flightPlans);
+
+        // Flight plan being tested
+        FlightPlan flightPlan = mock(FlightPlan.class);
+        when(flightPlan.getFlightDateDescDepArr()).thenReturn("12345");
+        LocalDateTime localDateTime = LocalDateTime.now(ZoneId.of("UTC"));
+        when(flightPlan.getFlightDateStdLcl()).thenReturn(localDateTime); // Assuming this returns a valid date
+        when(flightPlan.getFlightEtdLcl()).thenReturn("12:00"); // Revised ETD
+        when(flightPlan.getFlightDesc()).thenReturn("FL123");
+        when(flightPlan.getFlightReg()).thenReturn("ABC123"); // Original tail number
+        when(flightPlan.getFlightDep()).thenReturn("JFK");
+        when(flightPlan.getFlightArr()).thenReturn("LAX");
+        when(flightPlan.getFlightStatus()).thenReturn("Scheduled");
+        when(flightPlan.getLotNo()).thenReturn("Lot001");
+        when(flightPlan.getFlightBucket()).thenReturn("Bucket001");
+
+        // Use reflection to access the private method
+        Method method = PdfExcelGeneratorServiceImpl.class.getDeclaredMethod("flightPlanProcess", FlightPlan.class, String.class);
+        method.setAccessible(true);
+
+        // Act
+        GetIRROPSResponse response = (GetIRROPSResponse) method.invoke(pdfExcelGeneratorService, flightPlan, "Local");
+
+        // Validate the response
+        assertNotNull(response);
+        assertEquals("Delayed", response.getStatus());  // Status should be Delayed
+        assertEquals("12:00", response.getFlightTime()); // Revised ETD should be returned
+        assertEquals("FL123", response.getFlightNo());
+
+        String expectedDate = DateUtil.convertLocalDatTimeToString(flightPlan.getFlightDateStdLcl());
+        assertEquals(expectedDate, response.getFlightDate()); // Ensure date is formatted correctly
+        assertEquals("ABC123", response.getTailNo());  // Original tail number should still be shown
+        assertEquals("JFK", response.getFlightDep());
+        assertEquals("LAX", response.getFlightArr());
+    }
+
+
+    @Test
+    public void testFlightPlanProcess_WhenFlightStatusIsInStatusList() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        // Set up mock data for flight plan with a status in STATUS list
+        FlightPlan flightPlan = mock(FlightPlan.class);
+        when(flightPlan.getFlightDateDescDepArr()).thenReturn("12345");
+        when(flightPlan.getFlightDateStd()).thenReturn(new Date()); // Assuming this returns a valid date
+        when(flightPlan.getFlightEtd()).thenReturn("14:00"); // ETD in UTC
+        when(flightPlan.getFlightEtdLcl()).thenReturn("09:00"); // ETD in local time
+        when(flightPlan.getFlightDesc()).thenReturn("FL123");
+        when(flightPlan.getFlightReg()).thenReturn("ABC123");
+        when(flightPlan.getFlightDep()).thenReturn("JFK");
+        when(flightPlan.getFlightArr()).thenReturn("LAX");
+        when(flightPlan.getFlightStatus()).thenReturn("Cancelled"); // Status in STATUS list
+        when(flightPlan.getLotNo()).thenReturn("Lot001");
+        when(flightPlan.getFlightBucket()).thenReturn("Bucket001");
+
+        // Use reflection to access the private method
+        Method method = PdfExcelGeneratorServiceImpl.class.getDeclaredMethod("flightPlanProcess", FlightPlan.class, String.class);
+        method.setAccessible(true);
+
+        // Act with UTC timezone
+        GetIRROPSResponse responseUtc = (GetIRROPSResponse) method.invoke(pdfExcelGeneratorService, flightPlan, "UTC");
+
+        // Validate the response for UTC timezone
+        assertNotNull(responseUtc);
+        assertEquals("14:00", responseUtc.getFlightTime()); // ETD in UTC should be returned
+        assertEquals(DateUtil.convertDateToString(flightPlan.getFlightDateStd()), responseUtc.getFlightDate());
+        assertEquals("FL123", responseUtc.getFlightNo());
+        assertEquals("ABC123", responseUtc.getTailNo());
+        assertEquals("JFK", responseUtc.getFlightDep());
+        assertEquals("LAX", responseUtc.getFlightArr());
+        assertEquals("Cancelled", responseUtc.getStatus());
+        assertEquals("Lot001", responseUtc.getLotNo());
+        assertEquals("Bucket001", responseUtc.getFlightBucket());
+        assertEquals("12345", responseUtc.getId());
+    }
+
+    @Test
+    public void testFlightPlanProcess_WhenFlightStatusIsInStatusList1() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        // Set up mock data for flight plan with a status in STATUS list
+        FlightPlan flightPlan = mock(FlightPlan.class);
+        LocalDateTime localDateTime = LocalDateTime.now(ZoneId.of("UTC"));
+        when(flightPlan.getFlightDateStdLcl()).thenReturn(localDateTime);
+        when(flightPlan.getFlightDateDescDepArr()).thenReturn("12345");
+        when(flightPlan.getFlightDateStd()).thenReturn(new Date()); // Assuming this returns a valid date
+        when(flightPlan.getFlightEtd()).thenReturn("14:00"); // ETD in UTC
+        when(flightPlan.getFlightEtdLcl()).thenReturn("09:00"); // ETD in local time
+        when(flightPlan.getFlightDesc()).thenReturn("FL123");
+        when(flightPlan.getFlightReg()).thenReturn("ABC123");
+        when(flightPlan.getFlightDep()).thenReturn("JFK");
+        when(flightPlan.getFlightArr()).thenReturn("LAX");
+        when(flightPlan.getFlightStatus()).thenReturn("Cancelled"); // Status in STATUS list
+        when(flightPlan.getLotNo()).thenReturn("Lot001");
+        when(flightPlan.getFlightBucket()).thenReturn("Bucket001");
+
+        // Use reflection to access the private method
+        Method method = PdfExcelGeneratorServiceImpl.class.getDeclaredMethod("flightPlanProcess", FlightPlan.class, String.class);
+        method.setAccessible(true);
+
+        // Act with UTC timezone
+        GetIRROPSResponse responseUtc = (GetIRROPSResponse) method.invoke(pdfExcelGeneratorService, flightPlan, "Local");
+
+        // Validate the response for UTC timezone
+        assertNotNull(responseUtc);
+        assertEquals("09:00", responseUtc.getFlightTime()); // ETD in UTC should be returned
+        assertEquals(DateUtil.convertDateToString(flightPlan.getFlightDateStd()), responseUtc.getFlightDate());
+        assertEquals("FL123", responseUtc.getFlightNo());
+        assertEquals("ABC123", responseUtc.getTailNo());
+        assertEquals("JFK", responseUtc.getFlightDep());
+        assertEquals("LAX", responseUtc.getFlightArr());
+        assertEquals("Cancelled", responseUtc.getStatus());
+        assertEquals("Lot001", responseUtc.getLotNo());
+        assertEquals("Bucket001", responseUtc.getFlightBucket());
+        assertEquals("12345", responseUtc.getId());
+    }
+
+    public Date getTheStaticDate() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return sdf.parse("13/11/2024");
+    }
+}
+
+
+=============
+
+
+Class -->> 
+
+package com.ai.redsmartplus.irrops.service.impl;
+
+import com.ai.redsmartplus.dao.ArcFlightPlanDAO;
+import com.ai.redsmartplus.irrops.model.GetIRROPSResponse;
+import com.ai.redsmartplus.irrops.model.IrropsDownloadReq;
+import com.ai.redsmartplus.irrops.repository.FlightPlanRepo;
+import com.ai.redsmartplus.irrops.service.PdfExcelGeneratorService;
+import com.ai.redsmartplus.model.ArcFlightPlan;
+import com.ai.redsmartplus.model.FlightPlan;
+import com.ai.redsmartplus.util.DateUtil;
+import com.ai.redsmartplus.util.IrropsExcel;
+import com.ai.redsmartplus.util.IrropsPdf;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class PdfExcelGeneratorServiceImpl implements PdfExcelGeneratorService {
+
+    private static final List<String> STATUS = List.of("Diverted", "Cancelled", "Ramp Return", "Flight Return", "Air Return");
+
+    private final GetIRROPSDetailsServiceImpl getIRROPSDetailsService;
+    private final FlightPlanRepo flightPlansRepo;
+    private final ArcFlightPlanDAO arcFlightPlanDAO;
+    private final ResourceLoader resourceLoader;
+
+    @Override
+    public byte[] downloadPdfExcel(IrropsDownloadReq request) {
+
+        List<FlightPlan> flightPlans = new ArrayList<>();
+        if ("UTC".equalsIgnoreCase(request.getTimeZone())) {
+
+            flightPlans = flightPlansRepo.findByFlightDateStdBetween(request.getFromLocalDateTime(), request.getToLocalDateTime());
+
+        } else {
+
+            flightPlans = flightPlansRepo.findByFlightDateStdLclBetween(request.getFromLocalDateTime(), request.getToLocalDateTime());
+
+        }
+        List<GetIRROPSResponse> getIRROPSResponses = new ArrayList<>();
+        flightPlans.stream()
+                .map(flightPlan -> flightPlanProcess(flightPlan, request.getTimeZone()))
+                .filter(response -> !isEmptyResponse(response))
+                .forEach(getIRROPSResponses::add);
+
+        byte[] bytes = new byte[0];
+        if (Objects.equals(request.getDownloadType(), "PDF")) {
+            bytes = IrropsPdf.generateIrropsPdf(getIRROPSResponses, convertToTimestamp(request.getFromLocalDateTime()), convertToTimestamp(request.getToLocalDateTime()), request.getUserEmail(), request.getTimeZone(), resourceLoader);
+        } else if (Objects.equals(request.getDownloadType(), "EXCEL")) {
+            bytes = IrropsExcel.generateIrropExcel(getIRROPSResponses, convertToTimestamp(request.getFromLocalDateTime()), convertToTimestamp(request.getToLocalDateTime()), request.getUserEmail(), request.getTimeZone(), resourceLoader);
+        }
+        return bytes;
+    }
+
+    private GetIRROPSResponse flightPlanProcess(FlightPlan flightPlan, String timeZone) {
+        List<ArcFlightPlan> byFlightDateDescDepArr = arcFlightPlanDAO.findByFlightDateDescDepArr(flightPlan.getFlightDateDescDepArr());
+        Optional<ArcFlightPlan> arcFlightPlanOptional = byFlightDateDescDepArr.stream().filter(arcFlightPlan -> arcFlightPlan.getChangedAttr().contains("flightEtd") ||
+                        arcFlightPlan.getChangedAttr().contains("flightEtdLcl") || arcFlightPlan.getChangedAttr().contains("flightReg"))
+                .max(Comparator.comparing(ArcFlightPlan::getUpdTime));
+        GetIRROPSResponse getIRROPSResponse = new GetIRROPSResponse();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime currentETDTime = null;
+        LocalTime revisedETDTime = null;
+        if (arcFlightPlanOptional.isPresent()) {
+            ArcFlightPlan arcFlightPlan = arcFlightPlanOptional.get();
+            if ("UTC".equalsIgnoreCase(timeZone)) {
+                if (null != arcFlightPlan.getFlightEtd() && !arcFlightPlan.getFlightEtd().isEmpty()) {
+                    currentETDTime = LocalTime.parse(arcFlightPlan.getFlightEtd(), timeFormatter);
+                    revisedETDTime = LocalTime.parse(flightPlan.getFlightEtd(), timeFormatter);
+                }
+                if (arcFlightPlan.getChangedAttr().contains("flightEtd") && revisedETDTime.isAfter(currentETDTime)) {
+                    String flightDateStd = DateUtil.convertDateToString(flightPlan.getFlightDateStd());
+                    processIRRROPSResponse(flightPlan, getIRROPSResponse, "Delayed", flightDateStd, flightPlan.getFlightEtd());
+                } else if (arcFlightPlan.getChangedAttr().contains("flightReg")) {
+                    String flightDateStd = DateUtil.convertDateToString(flightPlan.getFlightDateStd());
+                    processIRRROPSResponse(flightPlan, getIRROPSResponse, "Tail Change", flightDateStd, flightPlan.getFlightEtd());
+                }
+            } else {
+                if (null != arcFlightPlan.getFlightEtdLcl() && !arcFlightPlan.getFlightEtdLcl().isEmpty()) {
+                    currentETDTime = LocalTime.parse(arcFlightPlan.getFlightEtdLcl(), timeFormatter);
+                    revisedETDTime = LocalTime.parse(flightPlan.getFlightEtdLcl(), timeFormatter);
+                }
+                if (arcFlightPlan.getChangedAttr().contains("flightEtdLcl") && revisedETDTime.isAfter(currentETDTime)) {
+                    String flightDateStd = DateUtil.convertLocalDatTimeToString(flightPlan.getFlightDateStdLcl());
+                    processIRRROPSResponse(flightPlan, getIRROPSResponse, "Delayed", flightDateStd, flightPlan.getFlightEtdLcl());
+                } else if (arcFlightPlan.getChangedAttr().contains("flightReg")) {
+                    String flightDateStd = DateUtil.convertLocalDatTimeToString(flightPlan.getFlightDateStdLcl());
+                    processIRRROPSResponse(flightPlan, getIRROPSResponse, "Tail Change", flightDateStd, flightPlan.getFlightEtdLcl());
+                }
+            }
+        } else {
+            if (STATUS.contains(flightPlan.getFlightStatus())) {
+                if ("UTC".equalsIgnoreCase(timeZone)) {
+                    getIRROPSResponse.setFlightTime(flightPlan.getFlightEtd());
+                    getIRROPSResponse.setFlightDate(DateUtil.convertDateToString(flightPlan.getFlightDateStd()));
+                } else {
+                    getIRROPSResponse.setFlightTime(flightPlan.getFlightEtdLcl());
+                    getIRROPSResponse.setFlightDate(DateUtil.convertLocalDatTimeToString(flightPlan.getFlightDateStdLcl()));
+                }
+                getIRROPSResponse.setFlightNo(flightPlan.getFlightDesc());
+
+                getIRROPSResponse.setTailNo(flightPlan.getFlightReg());
+                getIRROPSResponse.setFlightDep(flightPlan.getFlightDep());
+                getIRROPSResponse.setFlightArr(flightPlan.getFlightArr());
+                getIRROPSResponse.setStatus(flightPlan.getFlightStatus());
+                getIRROPSResponse.setLotNo(flightPlan.getLotNo());
+                getIRROPSResponse.setFlightBucket(flightPlan.getFlightBucket());
+                getIRROPSResponse.setId(flightPlan.getFlightDateDescDepArr());
+            }
+        }
+        return getIRROPSResponse;
+    }
+
+    private static void processIRRROPSResponse(FlightPlan flightPlan, GetIRROPSResponse getIRROPSResponse,
+                                               String status, String date, String time) {
+        getIRROPSResponse.setStatus(status);
+        getIRROPSResponse.setFlightTime(time);
+        getIRROPSResponse.setFlightNo(flightPlan.getFlightDesc());
+        getIRROPSResponse.setFlightDate(date);
+        getIRROPSResponse.setTailNo(flightPlan.getFlightReg());
+        getIRROPSResponse.setFlightDep(flightPlan.getFlightDep());
+        getIRROPSResponse.setFlightArr(flightPlan.getFlightArr());
+        getIRROPSResponse.setLotNo(flightPlan.getLotNo());
+        getIRROPSResponse.setFlightBucket(flightPlan.getFlightBucket());
+        getIRROPSResponse.setId(flightPlan.getFlightDateDescDepArr());
+    }
+
+    private boolean isEmptyResponse(GetIRROPSResponse response) {
+        return response.getFlightDate() == null &&
+                response.getFlightTime() == null &&
+                response.getFlightNo() == null &&
+                response.getTailNo() == null &&
+                response.getStatus() == null &&
+                response.getLotNo() == null &&
+                response.getFlightDep() == null &&
+                response.getFlightArr() == null;
+    }
+
+    public static Timestamp convertToTimestamp(LocalDateTime localDateTime) {
+        return Timestamp.valueOf(localDateTime);
+    }
+}
+
+
+
+

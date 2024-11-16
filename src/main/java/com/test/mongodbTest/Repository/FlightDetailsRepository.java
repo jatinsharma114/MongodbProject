@@ -1,7 +1,6 @@
 package com.test.mongodbTest.Repository;
 
 import com.test.mongodbTest.Model.FlightDetails;
-import com.test.mongodbTest.Model.PartnerContainer;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

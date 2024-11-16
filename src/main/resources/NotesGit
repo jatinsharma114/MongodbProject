@@ -1,0 +1,13 @@
+#undo the change back to the staging area IF By mistake you committed them in LOCAL.
+--> git reset HEAD~
+(Your last commit is removed from the history.)
+(changes there in the working directory which you committed)
+
+-----------------------
+
+#To apply the changes which are available in the stash list by INDEX.
+--> git stash apply "stash@{1}"
+
+git stash list
+git stash pop
+git log --oneline

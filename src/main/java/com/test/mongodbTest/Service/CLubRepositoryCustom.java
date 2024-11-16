@@ -1,15 +1,14 @@
 package com.test.mongodbTest.Service;
 
 import com.test.mongodbTest.Model.Partner;
-import com.test.mongodbTest.Model.PartnerContainer;
+import com.test.mongodbTest.Model.Club;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface PartnerContainerRepositoryCustom {
+public interface CLubRepositoryCustom {
 
-    List<PartnerContainer> findAllPartnerContainers();
+    List<Club> findAllPartnerContainers();
 
     Partner findPartnerById(int partnerId);
 
@@ -17,7 +16,7 @@ public interface PartnerContainerRepositoryCustom {
    List<Partner> getPartnersByName(String name);
 
    // Add New PartnerContainer with multi. Partners
-    public PartnerContainer addNewPartner(PartnerContainer partnerContainer);
+    public Club addNewPartner(Club club);
 
     /**
      * Update the Partner field based on the partnerId
@@ -36,5 +35,9 @@ public interface PartnerContainerRepositoryCustom {
 
     //-------------------
     public List<Partner> getPartnerContainersWithAgeAbove40();
+
+
+    List<Club> findByPartnerAge(Integer age);
+
 
 }

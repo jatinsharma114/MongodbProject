@@ -2,8 +2,8 @@ package com.test.mongodbTest.Controller;
 
 
 import com.test.mongodbTest.Model.Partner;
-import com.test.mongodbTest.Model.PartnerContainer;
-import com.test.mongodbTest.Service.PartnerContainerRepositoryCustom;
+import com.test.mongodbTest.Model.Club;
+import com.test.mongodbTest.Service.CLubRepositoryCustom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +15,13 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private PartnerContainerRepositoryCustom userService;
+    private CLubRepositoryCustom userService;
 
     public UserController() {
     }
 
     @GetMapping("/getAll")
-    public List<PartnerContainer> getAllPosts() {
+    public List<Club> getAllPosts() {
         return userService.findAllPartnerContainers();
     }
 
@@ -54,8 +54,8 @@ public class UserController {
     }
 
     @PostMapping("/addnew")
-    public ResponseEntity<PartnerContainer> addPartnerContainer(@RequestBody PartnerContainer partnerContainer) {
-        PartnerContainer savedContainer = userService.addNewPartner(partnerContainer);
+    public ResponseEntity<Club> addPartnerContainer(@RequestBody Club club) {
+        Club savedContainer = userService.addNewPartner(club);
         return ResponseEntity.ok(savedContainer);
     }
 
@@ -87,4 +87,6 @@ public class UserController {
 //
 //        return ResponseEntity.ok(partner);
 //    }
+
+
 }

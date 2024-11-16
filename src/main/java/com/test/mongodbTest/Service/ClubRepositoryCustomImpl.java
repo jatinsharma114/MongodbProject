@@ -3,8 +3,8 @@ package com.test.mongodbTest.Service;
 
 import com.mongodb.client.result.UpdateResult;
 import com.test.mongodbTest.Model.Partner;
-import com.test.mongodbTest.Model.PartnerContainer;
-import com.test.mongodbTest.Repository.MongoDBRepo;
+import com.test.mongodbTest.Model.Club;
+import com.test.mongodbTest.Repository.PartnerContainerRepo;
 import com.test.mongodbTest.Utils.GlobalConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -22,37 +22,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRepositoryCustom {
+public class ClubRepositoryCustomImpl implements CLubRepositoryCustom {
 
     @Autowired
-    private MongoDBRepo mongoDBRepo;
-
+    private PartnerContainerRepo partnerContainerRepo;
 
     private final MongoTemplate mongoTemplate;
 
 
-    public PartnerContainerRepositoryCustomImpl(MongoTemplate mongoTemplate) {
+    public ClubRepositoryCustomImpl(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
     @Override
-    public List<PartnerContainer> findAllPartnerContainers() {
-        return mongoDBRepo.findAll();
+    public List<Club> findAllPartnerContainers() {
+        return partnerContainerRepo.findAll();
     }
 
     @Override
-    public PartnerContainer addNewPartner(PartnerContainer partnerContainer) {
+    public Club addNewPartner(Club club) {
         // Set createdOn for PartnerContainer
         String currentTimestamp = LocalDateTime.now().format(GlobalConstant.FORMATTER);
-        partnerContainer.setCreatedOn(currentTimestamp);
+        club.setCreatedOn(currentTimestamp);
 
         // Set updatedOn for each Partner in the container
-        if (partnerContainer.getPartners() != null) {
-            partnerContainer.getPartners()
+        if (club.getPartners() != null) {
+            club.getPartners()
                     .forEach(partner -> partner.setUpdatedOn(currentTimestamp));
         }
 
-        return mongoDBRepo.save(partnerContainer);
+        return partnerContainerRepo.save(club);
     }
 
     @Override
@@ -60,7 +59,7 @@ public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRep
         Query queryCreated = new Query();
         queryCreated.addCriteria(Criteria.where("partners._id").is(partnerId));
         
-        PartnerContainer container = mongoTemplate.findOne(queryCreated, PartnerContainer.class);
+        Club container = mongoTemplate.findOne(queryCreated, Club.class);
         if (container != null) {
             return container.getPartners().stream()
                     .filter(partner -> partner.getId() == partnerId)
@@ -115,12 +114,12 @@ public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRep
         Query query = new Query(Criteria.where("partners._id").is(partnerId));
 
         //UPDATE Operation in DB Done!
-        UpdateResult result = mongoTemplate.updateFirst(query, updateForMainContact, PartnerContainer.class);
+        UpdateResult result = mongoTemplate.updateFirst(query, updateForMainContact, Club.class);
 
         // Step 4: Check if the update was successful
         if (result.getMatchedCount() > 0) {
             // Optionally, fetch the updated PartnerContainer to return it
-            PartnerContainer updatedContainer = mongoTemplate.findOne(query, PartnerContainer.class);
+            Club updatedContainer = mongoTemplate.findOne(query, Club.class);
             return ResponseEntity.ok(updatedContainer.getPartners());
         }
 
@@ -157,11 +156,11 @@ public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRep
         query.addCriteria(Criteria.where("partners.age").gt(minAge));
 
         // Execute the query and return the list of PartnerContainer documents
-        List<PartnerContainer> containers = mongoTemplate.find(query, PartnerContainer.class, "C1");
+        List<Club> containers = mongoTemplate.find(query, Club.class, "C1");
 
         // Extract partners from each container
         List<Partner> filteredPartners = new ArrayList<>();
-        for (PartnerContainer container : containers) {
+        for (Club container : containers) {
             for (Partner partner : container.getPartners()) {
                 if (partner.getAge() > minAge) {
                     filteredPartners.add(partner);
@@ -172,6 +171,11 @@ public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRep
         return filteredPartners;
     }
 
+    @Override
+    public List<Partner> getPartnerContainersWithAgeAbove40() {
+        return null;
+    }
+
 //    public List<PartnerContainer> getPartnerContainersWithAgeAbove40() {
 //        return mongoDBRepo.findPartnerContainersByAgeGreaterThan40();
 //    }
@@ -179,8 +183,14 @@ public class PartnerContainerRepositoryCustomImpl implements PartnerContainerRep
 //    @Autowired
 //    PartnerRepo partnerRepo;
 
-    public List<Partner> getPartnerContainersWithAgeAbove40() {
-        return mongoDBRepo.findPartnerContainersByAgeGreaterThan40();
+//    public List<Partner> getPartnerContainersWithAgeAbove40() {
+//        return partnerContainerRepo.findPartnerContainersByAgeGreaterThan40();
+//    }
+
+    @Override
+    public List<Club> findByPartnerAge(Integer age) {
+        return partnerContainerRepo.findByPartnerAge(age);
     }
+
 
 }

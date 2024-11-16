@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class ImportPartnersToSaveInDB {
     @Autowired
-    PartnerContainerRepositoryCustom partnerContainerRepositoryCustom;
+    CLubRepositoryCustom CLubRepositoryCustom;
 
     public List<PartnerResponse> importPartnersAndSaveInDB(MultipartFile file) throws IOException {
         List<PartnerResponse> updatedPartnerResponses = new ArrayList<>();
@@ -52,7 +52,7 @@ public class ImportPartnersToSaveInDB {
                     .build();
 
             // Assuming you have a method in your repository to update the partner
-            partnerContainerRepositoryCustom.updatePartner(partnerId, updatedPartner);
+            CLubRepositoryCustom.updatePartner(partnerId, updatedPartner);
 
             // Create PartnerResponse using Lombok builder
             PartnerResponse response = PartnerResponse.builder()

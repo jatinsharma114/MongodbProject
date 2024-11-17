@@ -124,7 +124,7 @@ public class ClubRepositoryCustomImpl implements CLubRepositoryCustom {
 
 
     //--------------------------------Based on AGE field------------------------------------
-    public List<Partner> getPartnersAboveAge(int age) {
+    public List<Partner> getListOfPartnersBasedOnAge(int age) {
         // Aggregation Pipeline ::
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.unwind("partners"),

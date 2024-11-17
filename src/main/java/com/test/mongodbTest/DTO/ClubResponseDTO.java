@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClubDTO {
+public class ClubResponseDTO {
     
     private List<Partner> partners;
     private String otherField;

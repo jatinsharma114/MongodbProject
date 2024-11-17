@@ -1,6 +1,7 @@
 package com.test.mongodbTest.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,10 @@ public class Partner {
     private String name;
     private String details;
     private Integer age;
+
+    // While Deserializing the DATA in Payload from client side we don't accepting this value.
+    // So, It will come in the pyload as null even someone try to add in the request payload.
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String updatedOn;
 }
 

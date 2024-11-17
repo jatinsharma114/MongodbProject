@@ -14,3 +14,6 @@ https://www.youtube.com/watch?v=Cx81dki8BTA&list=PLA3GkZPtsafacdBLdd3p1DyRd5FGfr
 
 
 @Query(value ={} , fields = {'name' : 1})
+
+
+//http://localhost:8081/swagger-ui/

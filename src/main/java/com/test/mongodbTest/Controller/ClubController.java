@@ -1,7 +1,7 @@
 package com.test.mongodbTest.Controller;
 
-import com.test.mongodbTest.DTO.ClubDTO;
-import com.test.mongodbTest.DTO.PartnerDTO;
+import com.test.mongodbTest.DTO.ClubResponseDTO;
+import com.test.mongodbTest.DTO.PartnerResponseDTO;
 import com.test.mongodbTest.Model.Club;
 import com.test.mongodbTest.Model.Partner;
 import com.test.mongodbTest.Service.CLubRepositoryCustom;
@@ -22,46 +22,46 @@ public class ClubController {
     private CLubRepositoryCustom userService;
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<ClubDTO>> getAllClubs() {
+    public ResponseEntity<List<ClubResponseDTO>> getAllClubs() {
         List<Club> allClubs = userService.findAllPartnerContainers();
 
         if (allClubs.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        List<ClubDTO> clubDTOs = ClubConverter.convertToDTOList(allClubs);
-        return ResponseEntity.ok(clubDTOs);
+        List<ClubResponseDTO> clubResponseDTOS = ClubConverter.convertToDTOList(allClubs);
+        return ResponseEntity.ok(clubResponseDTOS);
     }
 
     @PostMapping("/addnew")
-    public ResponseEntity<ClubDTO> addClub(@RequestBody Club club) {
+    public ResponseEntity<ClubResponseDTO> addClub(@RequestBody Club club) {
         Club savedClub = userService.addNewPartner(club);
-        ClubDTO clubDTO = ClubConverter.convertToDTO(savedClub);
-        return ResponseEntity.status(HttpStatus.CREATED).body(clubDTO);
+        ClubResponseDTO clubResponseDTO = ClubConverter.convertToDTO(savedClub);
+        return ResponseEntity.status(HttpStatus.CREATED).body(clubResponseDTO);
     }
 
     @GetMapping("/getByID/{id}")
-    public ResponseEntity<PartnerDTO> getPartnerById(@PathVariable(value = "id") int id) {
+    public ResponseEntity<PartnerResponseDTO> getPartnerById(@PathVariable(value = "id") int id) {
         Partner partner = userService.findPartnerById(id);
 
         if (partner == null) {
             return ResponseEntity.notFound().build();
         }
 
-        PartnerDTO partnerDTO = PartnerConverter.convertToDTO(partner);
-        return ResponseEntity.ok(partnerDTO);
+        PartnerResponseDTO partnerResponseDTO = PartnerConverter.convertToDTO(partner);
+        return ResponseEntity.ok(partnerResponseDTO);
     }
 
     @GetMapping("/partners/name")
-    public ResponseEntity<List<PartnerDTO>> getPartnersByName(@RequestParam String name) {
+    public ResponseEntity<List<PartnerResponseDTO>> getPartnersByName(@RequestParam String name) {
         List<Partner> partners = userService.getPartnersByName(name);
 
         if (partners.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        List<PartnerDTO> partnerDTOs = PartnerConverter.convertToDTOList(partners);
-        return ResponseEntity.ok(partnerDTOs);
+        List<PartnerResponseDTO> partnerResponseDTOS = PartnerConverter.convertToDTOList(partners);
+        return ResponseEntity.ok(partnerResponseDTOS);
     }
 
     @PostMapping("/updatePartner/{id}")
@@ -80,26 +80,26 @@ public class ClubController {
     }
 
     @GetMapping("/partners/getListOfPartnersBasedOnAge")
-    public ResponseEntity<List<PartnerDTO>> getListOfPartnersBasedOnAge(@RequestParam int age) {
+    public ResponseEntity<List<PartnerResponseDTO>> getListOfPartnersBasedOnAge(@RequestParam int age) {
         List<Partner> partners = userService.getListOfPartnersBasedOnAge(age);
 
         if (partners.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        List<PartnerDTO> partnerDTOs = PartnerConverter.convertToDTOList(partners);
-        return ResponseEntity.ok(partnerDTOs);
+        List<PartnerResponseDTO> partnerResponseDTOS = PartnerConverter.convertToDTOList(partners);
+        return ResponseEntity.ok(partnerResponseDTOS);
     }
 
     @GetMapping("/partners/greaterThanRequiredAge")
-    public ResponseEntity<List<PartnerDTO>> greaterThanRequiredAge(@RequestParam Integer age) {
+    public ResponseEntity<List<PartnerResponseDTO>> greaterThanRequiredAge(@RequestParam Integer age) {
         List<Partner> partners = userService.creteriaBasedOnAge(age);
 
         if (partners.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        List<PartnerDTO> partnerDTOs = PartnerConverter.convertToDTOList(partners);
-        return ResponseEntity.ok(partnerDTOs);
+        List<PartnerResponseDTO> partnerResponseDTOS = PartnerConverter.convertToDTOList(partners);
+        return ResponseEntity.ok(partnerResponseDTOS);
     }
 }

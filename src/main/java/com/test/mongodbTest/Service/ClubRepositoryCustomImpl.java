@@ -82,12 +82,6 @@ public class ClubRepositoryCustomImpl implements CLubRepositoryCustom {
         return results.getMappedResults();
     }
 
-    /**
-     *
-     * @param partnerId
-     * @param updatedPartner
-     * @return List<Partner> With the Updated Single Partner.
-     */
     @Override
     public ResponseEntity<List<Partner>> updatePartner(Integer partnerId, Partner updatedPartner) {
         // Step 1: Create the Update object
@@ -175,17 +169,6 @@ public class ClubRepositoryCustomImpl implements CLubRepositoryCustom {
     public List<Partner> getPartnerContainersWithAgeAbove40() {
         return null;
     }
-
-//    public List<PartnerContainer> getPartnerContainersWithAgeAbove40() {
-//        return mongoDBRepo.findPartnerContainersByAgeGreaterThan40();
-//    }
-
-//    @Autowired
-//    PartnerRepo partnerRepo;
-
-//    public List<Partner> getPartnerContainersWithAgeAbove40() {
-//        return partnerContainerRepo.findPartnerContainersByAgeGreaterThan40();
-//    }
 
     @Override
     public List<Club> findByPartnerAge(Integer age) {

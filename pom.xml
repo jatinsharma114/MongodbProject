@@ -68,7 +68,6 @@
 			<version>5.2.3</version> <!-- Check for the latest version -->
 		</dependency>
 
-
 	</dependencies>
 
 	<build>

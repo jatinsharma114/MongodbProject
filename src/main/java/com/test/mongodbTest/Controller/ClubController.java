@@ -79,9 +79,9 @@ public class ClubController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/partners/age")
-    public ResponseEntity<List<PartnerDTO>> getPartnersAboveAge(@RequestParam int age) {
-        List<Partner> partners = userService.getPartnersAboveAge(age);
+    @GetMapping("/partners/getListOfPartnersBasedOnAge")
+    public ResponseEntity<List<PartnerDTO>> getListOfPartnersBasedOnAge(@RequestParam int age) {
+        List<Partner> partners = userService.getListOfPartnersBasedOnAge(age);
 
         if (partners.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -91,8 +91,8 @@ public class ClubController {
         return ResponseEntity.ok(partnerDTOs);
     }
 
-    @GetMapping("/partners/getByAge")
-    public ResponseEntity<List<PartnerDTO>> getPartnersByAge(@RequestParam Integer age) {
+    @GetMapping("/partners/greaterThanRequiredAge")
+    public ResponseEntity<List<PartnerDTO>> greaterThanRequiredAge(@RequestParam Integer age) {
         List<Partner> partners = userService.creteriaBasedOnAge(age);
 
         if (partners.isEmpty()) {

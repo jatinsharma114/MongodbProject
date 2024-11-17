@@ -28,7 +28,7 @@ public interface CLubRepositoryCustom {
 
 
     //----------------------By AGE ----------------------------
-    public List<Partner> getPartnersAboveAge(int age);
+    public List<Partner> getListOfPartnersBasedOnAge(int age);
 
     List<Partner> creteriaBasedOnAge(Integer age);
 

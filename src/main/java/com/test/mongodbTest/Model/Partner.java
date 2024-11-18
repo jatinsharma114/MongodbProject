@@ -21,8 +21,6 @@ public class Partner {
     private String details;
     private Integer age;
 
-    // While Deserializing the DATA in Payload from client side we don't accepting this value.
-    // So, It will come in the pyload as null even someone try to add in the request payload.
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String updatedOn;
 }

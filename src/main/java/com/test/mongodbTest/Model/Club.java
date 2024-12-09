@@ -32,5 +32,4 @@ public class Club {
  * IF not then If @JsonIgnoreProperties(ignoreUnknown = true) is not used,
  * Jackson will throw an UnrecognizedPropertyException.
  *
- * // Added changes MAIN for revert
  */
